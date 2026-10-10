@@ -1,0 +1,78 @@
+# ID-TECHDIM: TECHDIM-PROJ-PROTOCOLO-v2.1.0
+name: CI — Protocolo TECHDIM
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificacao:
+    name: verificacao (${{ matrix.os }} / py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        python: [ "3.9", "3.10", "3.11", "3.12" ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      # NENHUM pip install — o organismo roda com stdlib pura (ADR-0001 / ADR-0013).
+      - name: Reconstruir o repositório Git em 05_VERSOES/
+        shell: bash
+        run: python 05_VERSOES/auto_commit.py --status || true
+
+      - name: Arranque headless
+        run: python INICIAR_UNIVERSAL.py --sem-painel
+        env:
+          TECHDIM_SEM_ESTADO: "1"
+
+      - name: Suite de testes (unittest) + cobertura
+        run: python 03_APLICACAO/tests/executar_testes.py --cobertura --quiet
+
+      - name: Auditoria completa (7 auditorias)
+        run: python 00_AUDITORIA/AUDITORIA_COMPLETA_runner.py
+
+      - name: Validador do CHECKLIST OFICIAL (Fases 0-9)
+        run: python 00_AUDITORIA/validador_checklist.py .
+
+      - name: SBOM + gate de licencas
+        run: python 00_AUDITORIA/sbom_gerar.py
+
+      - name: Healthcheck (/ready)
+        run: python 03_APLICACAO/healthcheck/healthcheck.py --ready
+
+      - name: Guardar relatorios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-${{ matrix.os }}-py${{ matrix.python }}
+          path: |
+            00_AUDITORIA/AUDITORIA_COMPLETA.md
+            00_AUDITORIA/VALIDACAO_CHECKLIST.json
+            03_APLICACAO/tests/cobertura/cobertura.json
+            03_APLICACAO/dependencias/sbom.json
+          if-no-files-found: ignore
+
+  qualidade-opcional:
+    name: qualidade opcional (pre-commit / detect-secrets / coverage)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet pre-commit detect-secrets coverage
+      - run: pre-commit run --all-files --config .pre-commit-config.yaml
+      - run: detect-secrets scan --baseline .secrets.baseline
+      - run: python 03_APLICACAO/tests/executar_testes.py --cobertura --quiet

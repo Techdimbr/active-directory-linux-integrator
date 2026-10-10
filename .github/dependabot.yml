@@ -1,0 +1,8 @@
+# ID-TECHDIM: TECHDIM-PROJ-PROTOCOLO-v2.1.0
+# So GitHub Actions — o organismo nao tem dependencias de pacote (ADR-0001).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

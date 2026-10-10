@@ -1,0 +1,35 @@
+{
+  "$schema": "./04_INTELIGENCIA_DE_DESENVOLVIMENTO/project-schema.json",
+  "canonical_id": "PRJ-TECHDIM-PUBLIC-v1.0.0",
+  "nome_comercial": "Active Directory Linux Integrator",
+  "slug": "active-directory-linux-integrator",
+  "versao": "1.0.0",
+  "categoria": "Identidade Corporativa & Integração Híbrida",
+  "subcategoria": "Template Canônico Open-Source",
+  "doutrina": "KETHER_1",
+  "sistema_alvo": "Linux Debian 13 (Trixie/Sid) / Multiplataforma",
+  "descricao": "Automação robusta para ingresso e integração de estações e servidores Linux Debian/Ubuntu em domínios Microsoft Active Directory corporativos, com autenticação Kerberos, autorização via SSSD e regras centralizadas de sudoers.",
+  "diferenciais": [
+    "Estrutura canônica limpa e previsível em 7 diretórios numéricos (00 a 06)",
+    "Integridade matemática com verificação nativa SHA-256 (AIDE/Tripwire)",
+    "Barreira estrita anti-vazamento de tokens e segredos via git pre-commit hook (Zero Leaks)",
+    "Prontidão nativa para agentes de IA (Google Antigravity, Claude Code, Gemini)",
+    "Pipelines automatizados de CI/CD para testes e auditoria de segurança no GitHub Actions",
+    "Bootstrap inteligente com suporte nativo a Debian 13 e multiplataforma"
+  ],
+  "comandos": {
+    "iniciar": "./iniciar.sh",
+    "testar": "python3 -m unittest discover 03_APLICACAO/tests",
+    "auditar": "./00_AUDITORIA/verificar_integridade.sh"
+  },
+  "autor": "Deivis Írio Mayer (Kether_1)",
+  "entidade": "TECHDIM INOVA SIMPLES (I.S.) - ME",
+  "cnpj": "61.933.926/0001-24",
+  "website": "https://www.techdim.com.br",
+  "licenca": "MIT",
+  "website_github_pages": "https://techdimbr.github.io/techdimbr/",
+  "links": {
+    "website_oficial": "https://www.techdim.com.br",
+    "github_pages": "https://techdimbr.github.io/techdimbr/"
+  }
+}

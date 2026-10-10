@@ -1,0 +1,77 @@
+# Techdim — modelo geral de .gitignore (lixo de SO, editores, logs, segredos)
+
+# Sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Editores/IDEs
+.vscode/
+.idea/
+.claude/worktrees/
+*.swp
+*.swo
+*~
+
+# Logs e arquivos temporários
+*.log
+logs/
+tmp/
+*.tmp
+*.bak
+TechdimPadraoProjetos.desktop
+.instalado_em
+04_INTELIGENCIA_DE_DESENVOLVIMENTO/ESTADO_ATUAL.json
+04_INTELIGENCIA_DE_DESENVOLVIMENTO/06_neural_core/memoria_episodica.jsonl
+04_INTELIGENCIA_DE_DESENVOLVIMENTO/06_neural_core/*.lock
+04_INTELIGENCIA_DE_DESENVOLVIMENTO/07_estado_operador/operador.json
+04_INTELIGENCIA_DE_DESENVOLVIMENTO/04_metricas_de_qualidade/checklist_estado.json
+00_AUDITORIA/AUDITORIA_COMPLETA.md
+00_AUDITORIA/DIAGNOSTICO_AMBIENTE.md
+00_AUDITORIA/VALIDACAO_CHECKLIST.json
+00_AUDITORIA/VALIDACAO_CHECKLIST.md
+03_APLICACAO/healthcheck/health.json
+03_APLICACAO/healthcheck/ready.json
+03_APLICACAO/metricas/metricas.jsonl
+03_APLICACAO/metricas/organismo.prom
+03_APLICACAO/tests/cobertura/
+
+# Segredos e configuração local (nunca versionar credenciais reais)
+.env
+.env.*
+*.pem
+*.key
+config.local.json
+secrets.json
+
+# Compactados gerados localmente
+*.zip
+*.tar.gz
+
+# Techdim — modelo Python
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+
+# 05_VERSOES/ tem seu proprio repositorio Git independente ("Git Vivo").
+# Nunca rastrear como submodulo/gitlink aqui - sem isso, o clone deste
+# repositorio herda uma pasta vazia (era o defeito do PROTOCOLO_TECHDIM_v2.1.0).
+05_VERSOES/

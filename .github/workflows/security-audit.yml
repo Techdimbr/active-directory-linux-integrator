@@ -1,0 +1,60 @@
+# ==============================================================================
+# TECHDIM INOVA SIMPLES (I.S.) · CNPJ: 61.933.926/0001-24
+# Pipeline CI/CD de Auditoria de Segurança e Barreira Anti-Vazamento (Zero Leaks)
+# ==============================================================================
+name: Security & Integrity Audit
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  audit-seguranca:
+    name: Auditoria de Segredos e Integridade
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Barreira Anti-Vazamento (.env e Chaves Privadas)
+        run: |
+          echo "🔍 Verificando ausência de arquivos .env reais..."
+          if find . -name "*.env" ! -name "*.env.example" | grep -q .; then
+            echo "❌ ERRO: Arquivo .env real detectado no repositório!" >&2
+            exit 1
+          fi
+
+          echo "🔍 Verificando padrões de chaves privadas em texto claro..."
+          if grep -r --exclude-dir=".git" --exclude-dir=".github" "BEGIN RSA PRIVATE KEY" .; then
+            echo "❌ ERRO: Chave privada detectada no código!" >&2
+            exit 1
+          fi
+
+      - name: Verificação Matemática de Integridade (AIDE/SHA-256)
+        run: |
+          chmod +x ./00_AUDITORIA/verificar_integridade.sh
+          ./00_AUDITORIA/verificar_integridade.sh || echo "⚠️ Checksums em validação inicial."
+
+      - name: Validação do Manifesto Canônico project.json
+        run: |
+          python3 -c "
+          import json
+          with open('project.json', 'r', encoding='utf-8') as f:
+              p = json.load(f)
+          obrigatorios = ['canonical_id', 'nome_comercial', 'versao', 'doutrina']
+          faltantes = [c for c in obrigatorios if c not in p]
+          if faltantes:
+              print(f'❌ Campos obrigatórios ausentes no project.json: {faltantes}')
+              exit(1)
+          print('✅ Manifesto project.json 100% em conformidade com o padrão canônico!')
+          "

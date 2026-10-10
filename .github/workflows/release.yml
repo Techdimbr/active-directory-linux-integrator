@@ -1,0 +1,57 @@
+# ID-TECHDIM: TECHDIM-PROJ-PROTOCOLO-v2.1.0
+name: Release — Protocolo TECHDIM
+
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verificacao completa
+        env:
+          TECHDIM_SEM_ESTADO: "1"
+        run: |
+          python INICIAR_UNIVERSAL.py --sem-painel
+          python 03_APLICACAO/tests/executar_testes.py --cobertura --quiet
+          python 00_AUDITORIA/AUDITORIA_COMPLETA_runner.py
+          python 00_AUDITORIA/validador_checklist.py .
+
+      - name: Gerar SBOM + Prova de Integridade
+        run: |
+          python 00_AUDITORIA/sbom_gerar.py
+          python 06_MIDIA/prova_de_integridade.py
+
+      - name: Empacotar organismo (sem .git / caches / runtime)
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          mkdir -p 05_VERSOES/artefatos
+          git archive --format=zip --prefix="PROTOCOLO_TECHDIM_${VER}/" -o "05_VERSOES/artefatos/PROTOCOLO_TECHDIM_${VER}.zip" "${GITHUB_REF_NAME}"
+
+      - name: Extrair trecho do CHANGELOG
+        id: notas
+        run: |
+          awk '/^## \[/{c++} c==1' 05_VERSOES/CHANGELOG.md > release_notes.md
+          cat release_notes.md
+
+      - name: Criar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            05_VERSOES/artefatos/PROTOCOLO_TECHDIM_*.zip
+            06_MIDIA/PROVA_DE_INTEGRIDADE.json
+            03_APLICACAO/dependencias/sbom.json
+            00_AUDITORIA/AUDITORIA_COMPLETA.md
